@@ -14,7 +14,7 @@ function doPost(e) {
     const data = JSON.parse(e.postData.contents);
     
     // Open your Google Sheet (replace with your sheet ID)
-    const sheet = SpreadsheetApp.openById('YOUR_SHEET_ID').getActiveSheet();
+    const sheet = SpreadsheetApp.openById('1ANKRnjL4jv7fP_W-3Isw09_HzDIOwI90h_4B2n8tuZU').getActiveSheet();
     
     // Add headers if this is the first row
     if (sheet.getLastRow() === 0) {
