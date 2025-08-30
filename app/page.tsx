@@ -151,18 +151,41 @@ export default function EnergyCalculatorPage() {
     setIsGeneratingReport(true)
 
     try {
+      const response = await fetch("/api/submit-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: leadForm.name,
+          email: leadForm.email,
+          phone: leadForm.phone,
+          monthlyBill,
+          zipCode,
+          homeSize,
+          savings,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.message)
+      }
+
+      // Generate PDF report after successful submission
       await generatePDFReport(leadForm, savings)
 
       // Show success message
       alert(
-        "Get your complete savings report and next steps—absolutely free. Your report is being generated and will open in a new window for download.",
+        "Get your complete savings report and next steps—absolutely free. Your information has been saved and your report is being generated.",
       )
 
       // Clear form
       setLeadForm({ name: "", email: "", phone: "" })
     } catch (error) {
-      console.error("Error generating report:", error)
-      alert("There was an issue generating your report. Please try again.")
+      console.error("Error submitting lead:", error)
+      alert("There was an issue submitting your information. Please try again.")
     } finally {
       setIsGeneratingReport(false)
     }
