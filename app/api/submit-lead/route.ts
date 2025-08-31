@@ -7,8 +7,9 @@ export async function POST(request: NextRequest) {
 
     const { name, email, phone, monthlyBill, zipCode, homeSize, savings } = body
 
-    // Google Sheets Web App URL (user will need to create this)
-    const GOOGLE_SHEETS_URL = process.env.GOOGLE_SHEETS_URL
+    const GOOGLE_SHEETS_URL =
+      process.env.GOOGLE_SHEETS_URL ||
+      "https://script.google.com/macros/s/AKfycby4yOIvcm0jbugVB474pgTAp5WhQhR4szZsmxn0bDYAbv2LP1PUIffmSxTVlWD_kluv/exec"
     console.log("[v0] Google Sheets URL configured:", !!GOOGLE_SHEETS_URL)
 
     // Prepare data for logging/storage
