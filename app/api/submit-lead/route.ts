@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
     const GOOGLE_SHEETS_URL =
       process.env.GOOGLE_SHEETS_URL ||
-      "https://script.google.com/macros/s/AKfycbzRhLIXDPKD1r2KSKIZYhjpeQa3aM-XlC41vVuzHV5xnm9y3uYloBuG-iPlaz1vRkAS5A/exec"
+      "https://script.google.com/macros/s/AKfycbzainlBMOOUlTV61E0Co4T__b_MUofZQ4R9FwQIVB1FiHooK7juzO6vgvOo3E3eIV7bSA/exec"
     console.log("[v0] Google Sheets URL configured:", !!GOOGLE_SHEETS_URL)
 
     // Prepare data for logging/storage
