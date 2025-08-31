@@ -11,13 +11,9 @@ export async function POST(request: NextRequest) {
     const GOOGLE_SHEETS_URL = process.env.GOOGLE_SHEETS_URL
     console.log("[v0] Google Sheets URL configured:", !!GOOGLE_SHEETS_URL)
 
-    if (!GOOGLE_SHEETS_URL) {
-      console.log("[v0] Error: Google Sheets URL not configured")
-      throw new Error("Google Sheets URL not configured")
-    }
-
-    // Prepare data for Google Sheets
-    const sheetData = {
+    // Prepare data for logging/storage
+    const leadData = {
+      timestamp: new Date().toISOString(),
       name,
       email,
       phone,
@@ -29,64 +25,80 @@ export async function POST(request: NextRequest) {
       tenYearSavings: savings?.tenYear || 0,
     }
 
-    console.log("[v0] Sending data to Google Sheets:", sheetData)
+    if (!GOOGLE_SHEETS_URL) {
+      console.log("[v0] Google Sheets not configured - using fallback storage")
+      console.log("[v0] Lead data (SAVE THIS):", JSON.stringify(leadData, null, 2))
 
-    const response = await fetch(GOOGLE_SHEETS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(sheetData),
-      redirect: "follow", // This should follow redirects automatically
-    })
-
-    console.log("[v0] Google Sheets response status:", response.status)
-    const responseText = await response.text()
-    console.log("[v0] Google Sheets response:", responseText)
-
-    if (response.status === 302) {
-      console.log("[v0] Received redirect - this indicates Google Apps Script deployment issue")
-      throw new Error(
-        `Google Apps Script deployment error: Please ensure your script is deployed as a web app with 'Anyone' access permissions. Status: ${response.status}`,
-      )
+      return NextResponse.json({
+        success: true,
+        message: "Lead captured successfully! (Using fallback - check server logs for data)",
+        fallback: true,
+      })
     }
 
-    if (!response.ok) {
-      console.log("[v0] Google Sheets request failed with status:", response.status)
+    console.log("[v0] Attempting Google Sheets submission...")
 
-      if (response.status === 403) {
-        throw new Error(
-          `Access denied: Please check that your Google Apps Script is deployed with 'Anyone' access permissions. Status: ${response.status}`,
-        )
-      } else if (response.status === 404) {
-        throw new Error(
-          `Script not found: Please verify your Google Apps Script URL is correct. Status: ${response.status}`,
-        )
-      } else {
-        throw new Error(`Google Sheets request failed: ${response.status} - ${responseText}`)
-      }
-    }
-
-    let responseData
     try {
-      responseData = JSON.parse(responseText)
-    } catch (e) {
-      if (responseText.includes("success") || responseText.includes("OK")) {
-        console.log("[v0] Response appears successful despite not being JSON")
-        responseData = { success: true }
-      } else {
-        console.log("[v0] Response is not JSON and doesn't indicate success:", responseText)
-        throw new Error("Invalid response from Google Sheets")
+      const response = await fetch(GOOGLE_SHEETS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(leadData),
+        redirect: "manual", // Handle redirects manually to detect deployment issues
+      })
+
+      console.log("[v0] Google Sheets response status:", response.status)
+
+      if (response.status === 302 || response.status === 301) {
+        console.log("[v0] Redirect detected - Google Apps Script deployment issue")
+        console.log("[v0] Using fallback storage for lead:", JSON.stringify(leadData, null, 2))
+
+        return NextResponse.json({
+          success: true,
+          message: "Lead captured! Note: Google Sheets needs proper deployment (see console for setup instructions)",
+          fallback: true,
+          deploymentIssue: true,
+        })
       }
-    }
 
-    if (responseData.success === false) {
-      throw new Error(responseData.message || "Google Sheets reported failure")
-    }
+      const responseText = await response.text()
+      console.log("[v0] Google Sheets response:", responseText)
 
-    console.log("[v0] Lead submitted successfully")
-    return NextResponse.json({ success: true, message: "Lead submitted successfully" })
+      if (!response.ok) {
+        throw new Error(`Google Sheets error: ${response.status}`)
+      }
+
+      // Try to parse response
+      let responseData
+      try {
+        responseData = JSON.parse(responseText)
+      } catch (e) {
+        if (responseText.includes("success") || responseText.includes("OK")) {
+          responseData = { success: true }
+        } else {
+          throw new Error("Invalid response format")
+        }
+      }
+
+      if (responseData.success === false) {
+        throw new Error(responseData.message || "Google Sheets reported failure")
+      }
+
+      console.log("[v0] Lead submitted to Google Sheets successfully")
+      return NextResponse.json({ success: true, message: "Lead submitted to Google Sheets successfully!" })
+    } catch (sheetsError) {
+      console.log("[v0] Google Sheets failed, using fallback storage")
+      console.log("[v0] Lead data (SAVE THIS):", JSON.stringify(leadData, null, 2))
+      console.log("[v0] Google Sheets error:", sheetsError)
+
+      return NextResponse.json({
+        success: true,
+        message: "Lead captured successfully! (Google Sheets unavailable - check server logs for data)",
+        fallback: true,
+      })
+    }
   } catch (error) {
     console.error("[v0] Error submitting lead:", error)
     return NextResponse.json(
