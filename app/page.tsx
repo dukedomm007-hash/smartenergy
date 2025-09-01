@@ -312,36 +312,8 @@ export default function EnergyCalculatorPage() {
               </CardContent>
             </Card>
 
-            {/* Testimonials */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              {[
-                {
-                  quote:
-                    "We cut our electric bill from $180 to just $45 per month. The savings have been incredible, and we wish we'd made the switch sooner!",
-                  author: "Sarah M., Richardson, TX",
-                },
-                {
-                  quote:
-                    "Alternative energy has been a game-changer for our family. No more sticker shock when the electric bill arrives—just predictable, low costs every month.",
-                  author: "Mike D., Plano, TX",
-                },
-                {
-                  quote:
-                    "The installation was smooth, and we started seeing savings immediately. Our neighbors are now asking us about it too!",
-                  author: "Jennifer L., Dallas, TX",
-                },
-              ].map((testimonial, index) => (
-                <Card key={index} className="border-l-4 border-l-indigo-500">
-                  <CardContent className="pt-6">
-                    <p className="italic text-slate-600 mb-4 text-lg">"{testimonial.quote}"</p>
-                    <div className="font-semibold text-slate-800">- {testimonial.author}</div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
             {/* CTA Section */}
-            <Card className="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
+            <Card className="bg-gradient-to-r from-slate-800 to-slate-700 text-white mb-12">
               <CardContent className="pt-12 pb-8 text-center">
                 <h2 className="text-3xl font-bold mb-4">Ready to Lock in Your Savings?</h2>
                 <p className="text-xl mb-8 opacity-90">
@@ -388,6 +360,34 @@ export default function EnergyCalculatorPage() {
                 </p>
               </CardContent>
             </Card>
+
+            {/* Testimonials */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              {[
+                {
+                  quote:
+                    "We cut our electric bill from $180 to just $45 per month. The savings have been incredible, and we wish we'd made the switch sooner!",
+                  author: "Sarah M., Richardson, TX",
+                },
+                {
+                  quote:
+                    "Alternative energy has been a game-changer for our family. No more sticker shock when the electric bill arrives—just predictable, low costs every month.",
+                  author: "Mike D., Plano, TX",
+                },
+                {
+                  quote:
+                    "The installation was smooth, and we started seeing savings immediately. Our neighbors are now asking us about it too!",
+                  author: "Jennifer L., Dallas, TX",
+                },
+              ].map((testimonial, index) => (
+                <Card key={index} className="border-l-4 border-l-indigo-500">
+                  <CardContent className="pt-6">
+                    <p className="italic text-slate-600 mb-4 text-lg">"{testimonial.quote}"</p>
+                    <div className="font-semibold text-slate-800">- {testimonial.author}</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </div>
